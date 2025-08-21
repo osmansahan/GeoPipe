@@ -1,0 +1,19 @@
+{
+  "name": "cyprus",
+  "description": "Cyprus OSM tiles generation",
+  "pbf_path": "/pbf/cyprus-latest.osm.pbf",
+  "render_type": "bbox",
+  "bbox": {
+    "min_lon": 32.2,
+    "min_lat": 34.5,
+    "max_lon": 34.7,
+    "max_lat": 35.7
+  },
+  "zoom_levels": {
+    "min_zoom": 0,
+    "max_zoom": 12
+  },
+  "style": "osm-carto",
+  "output_format": "png",
+  "tile_size": 256
+}

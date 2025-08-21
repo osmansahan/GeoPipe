@@ -1,0 +1,11 @@
+# OSM Tile Generator - Python Dependencies
+# This file lists the Python packages required by the system
+
+# System monitoring and resource management
+psutil>=5.9.5
+
+# JSON schema validation (for future developments)
+jsonschema>=4.17.3
+
+# Note: All other geospatial dependencies are managed within Docker containers
+# The main Python application requires minimal dependencies

@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: osm_postgres
+    environment:
+      POSTGRES_DB: gis
+      POSTGRES_USER: osm
+      POSTGRES_PASSWORD: osm
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  tile-server:
+    image: nginx:alpine
+    container_name: osm_nginx
+    volumes:
+      - ./tiles:/usr/share/nginx/html/tiles:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+
+  osm-tools:
+    image: overv/openstreetmap-tile-server
+    container_name: osm_tools
+    depends_on:
+      - postgres
+    environment:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: osm
+      PGPASSWORD: osm
+      PGDATABASE: gis
+      UPDATES: disabled
+      ALLOW_CORS: enabled
+    volumes:
+      - ./pbf:/data/pbf:ro
+      - ./tiles:/data/tiles
+      - osm_data:/data/database/
+    working_dir: /data
+    command: run
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  osm_data:
