@@ -1,174 +1,171 @@
 # GeoPipe: OpenStreetMap Tile Generator
 
+<div align="center">
+
 ![Version](https://img.shields.io/badge/version-3.0-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Docker](https://img.shields.io/badge/docker-required-blue)
 
-GeoPipe is a professional-grade, Docker-based system for generating map tiles from OpenStreetMap data. This tool processes OpenStreetMap data in Protocolbuffer Binary Format (`.osm.pbf`) and generates standard map tiles in PNG format that can be used in web mapping applications.
+**Professional-grade Docker-based system for generating map tiles from OpenStreetMap data**
+
+</div>
+
+---
+
+## 🎯 Overview
+
+GeoPipe is a powerful and user-friendly tool that processes OpenStreetMap data in Protocolbuffer Binary Format (`.osm.pbf`) and generates standard map tiles in PNG format. These tiles can be used in web mapping applications, GIS systems, and any project requiring custom map tiles.
+
+**Key Features:**
+- 🐳 **Docker-based architecture** - Zero configuration hassles
+- 🖥️ **Cross-platform support** - Works on Windows, Linux, and macOS
+- 🎛️ **Interactive CLI** - User-friendly command-line interface
+- ⚡ **High performance** - Optimized for speed and efficiency
+- 🔧 **Flexible configuration** - Support for custom areas and zoom levels
+- 📦 **Template system** - Quick setup for common regions
+
+---
 
 ## 📋 Table of Contents
 
 - [Quick Start](#-quick-start)
-- [Detailed Installation Guide](#-detailed-installation-guide)
-- [Using the Application](#-using-the-application)
-- [Project Configuration](#-project-configuration)
-- [Working with Templates](#-working-with-templates)
-- [Tile Generation Process](#-tile-generation-process)
+- [Installation](#-installation)
+- [Getting Started](#-getting-started)
+- [Configuration](#-configuration)
+- [Usage Guide](#-usage-guide)
+- [Templates](#-templates)
 - [Troubleshooting](#-troubleshooting)
 - [Directory Structure](#-directory-structure)
-- [Advanced Usage](#-advanced-usage)
+- [Advanced Features](#-advanced-features)
+
+---
 
 ## 🚀 Quick Start
 
-For those familiar with Docker and mapping tools, here's how to get started quickly:
+**For experienced users - get up and running in 3 steps:**
 
 ```bash
-# Clone the repository
+# 1. Clone and enter directory
 git clone https://github.com/osmansahan/GeoPipe.git
 cd GeoPipe
 
-# Start Docker services
+# 2. Start services
 docker-compose up -d
 
-# Run the application
-# Windows:
-osm_pipeline.bat
-# Linux/macOS:
-python osm_pipeline.py
-
-# Select option 1 to use an existing config (e.g., cyprus.json)
-# Or select option 2 to create a new project
+# 3. Run application
+./osm_pipeline.bat    # Windows
+python osm_pipeline.py # Linux/macOS
 ```
 
-## 📥 Detailed Installation Guide
+---
+
+## 💾 Installation
 
 ### Prerequisites
 
-Before installing GeoPipe, make sure you have the following software installed:
+| Requirement | Version | Installation |
+|-------------|---------|--------------|
+| **Git** | Latest | [Download Git](https://git-scm.com/downloads) |
+| **Docker Desktop** | Latest | [Download Docker](https://www.docker.com/products/docker-desktop/) |
+| **Python** | 3.6+ | [Download Python](https://www.python.org/downloads/) |
 
-1. **Git** - For cloning the repository
-   - Windows: Download from [git-scm.com](https://git-scm.com/downloads)
-   - Linux: `sudo apt install git` (Ubuntu/Debian) or `sudo yum install git` (CentOS/RHEL)
-   - macOS: `brew install git` (using Homebrew)
+### Step-by-Step Installation
 
-2. **Docker Desktop** - For running containerized services
-   - Download from [docker.com](https://www.docker.com/products/docker-desktop/)
-   - Make sure Docker Compose is included (it comes with Docker Desktop)
-   - Allocate at least 4GB of RAM to Docker in the settings
+#### 1️⃣ Clone the Repository
 
-3. **Python 3.6+** - For running the main application
-   - Windows: Download from [python.org](https://www.python.org/downloads/) or Microsoft Store
-   - Linux: Usually pre-installed, or `sudo apt install python3 python3-pip`
-   - macOS: `brew install python`
-
-### Installation Steps
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/osmansahan/GeoPipe.git
-   cd GeoPipe
-   ```
-
-2. **Install Python Dependencies**:
-   ```bash
-   # Windows
-   pip install -r requirements.txt
-   
-   # Linux/macOS
-   pip3 install -r requirements.txt
-   ```
-
-3. **Prepare Data Directory**:
-   - Download OpenStreetMap PBF files from [Geofabrik](https://download.geofabrik.de/)
-   - Place the downloaded `.osm.pbf` files in the `pbf/` directory
-   - Example: Download `cyprus-latest.osm.pbf` and place it in `pbf/cyprus-latest.osm.pbf`
-
-4. **Start Docker Services**:
-   ```bash
-   # Windows/Linux/macOS
-   docker-compose up -d
-   ```
-
-5. **Verify Services**:
-   ```bash
-   docker-compose ps
-   ```
-   All services (`osm_postgres`, `osm_nginx`, `osm_tools`) should show status as "Up".
-
-## 🖥️ Using the Application
-
-GeoPipe provides an interactive Command Line Interface (CLI) for managing tile generation projects.
-
-### Starting the Application
-
-- **Windows**:
-  ```bash
-  osm_pipeline.bat
-  ```
-
-- **Linux/macOS**:
-  ```bash
-  python osm_pipeline.py
-  # or
-  python3 osm_pipeline.py
-  ```
-
-### Main Menu Options
-
-When you start the application, you'll see the following menu:
-
-```
-===== OSM Tile Generator =====
-1. Use existing config
-2. Create new config
-3. Exit
-Enter your choice:
+```bash
+git clone https://github.com/osmansahan/GeoPipe.git
+cd GeoPipe
 ```
 
-- **Option 1**: Use an existing project configuration file
-- **Option 2**: Create a new project configuration
-- **Option 3**: Exit the application
+#### 2️⃣ Install Python Dependencies
 
-### Interactive CLI Commands
+```bash
+# Windows
+pip install -r requirements.txt
 
-During operation, the CLI provides real-time feedback and progress information:
-
-- Progress indicators show tile generation status
-- Error messages are displayed in red with detailed information
-- Status updates show which zoom levels are being processed
-- Memory usage and performance statistics are displayed periodically
-
-You can press `Ctrl+C` at any time to gracefully stop the process.
-
-## 🔧 Project Configuration
-
-### Creating a New Project
-
-When selecting option 2 from the main menu, you'll be guided through creating a new project:
-
-1. **Project Name**: Enter a unique identifier (e.g., `albania`, `istanbul`)
-2. **Project Description**: Add a brief description of what this project covers
-3. **Select PBF File**: Choose from available `.osm.pbf` files in the `pbf/` directory
-4. **Rendering Scope**: Choose between:
-   - `full`: Process the entire PBF file
-   - `bbox`: Specify a geographic bounding box (you'll need to enter coordinates)
-5. **Zoom Levels**: Specify minimum and maximum zoom levels
-   - Recommended for testing: 8-12 (higher zoom levels generate more tiles)
-   - Production: 0-14 (can generate millions of tiles for large areas)
-
-### Using Existing Configurations
-
-When selecting option 1, you'll see a list of available configuration files:
-
-```
-Available configurations:
-1. cyprus.json
-2. Kosova.json
-Enter the number of your choice:
+# Linux/macOS
+pip3 install -r requirements.txt
 ```
 
-Select a number to load that configuration and begin tile generation.
+#### 3️⃣ Configure Docker
 
-### Configuration File Format
+Ensure Docker Desktop is running and allocate at least **4GB RAM** in Docker settings:
+- Windows/macOS: Docker Desktop → Settings → Resources → Memory
+- Linux: Docker should use available system memory
+
+#### 4️⃣ Download Map Data
+
+Visit [Geofabrik Downloads](https://download.geofabrik.de/) and download the `.osm.pbf` file for your region:
+
+```bash
+# Example: Download Cyprus data
+wget https://download.geofabrik.de/europe/cyprus-latest.osm.pbf
+mv cyprus-latest.osm.pbf pbf/
+```
+
+#### 5️⃣ Start Services
+
+```bash
+docker-compose up -d
+```
+
+Verify all services are running:
+```bash
+docker-compose ps
+```
+
+You should see all services with status `Up`:
+- `osm_postgres` (Database)
+- `osm_nginx` (Web server)  
+- `osm_tools` (Tile generator)
+
+---
+
+## 🏁 Getting Started
+
+### Launch the Application
+
+**Windows:**
+```cmd
+osm_pipeline.bat
+```
+
+**Linux/macOS:**
+```bash
+python osm_pipeline.py
+```
+
+### Main Menu
+
+```
+===== GeoPipe: OSM Tile Generator =====
+
+1. 📁 Use existing configuration
+2. ➕ Create new project
+3. 🚪 Exit
+
+Enter your choice [1-3]:
+```
+
+### Your First Project
+
+**Option 1: Use existing configuration (Recommended for beginners)**
+- Select a pre-configured project like `cyprus.json`
+- The system will automatically start generating tiles
+
+**Option 2: Create new project**
+- Follow the interactive setup wizard
+- Recommended settings for testing:
+  - Zoom levels: 8-12
+  - Render mode: `bbox` (for small areas)
+
+---
+
+## ⚙️ Configuration
+
+### Project Configuration Files
 
 Configuration files are stored in the `config/` directory as JSON files:
 
@@ -183,238 +180,355 @@ Configuration files are stored in the `config/` directory as JSON files:
 }
 ```
 
-For bounding box mode, the configuration includes coordinates:
+### Configuration Options
+
+| Parameter | Description | Options |
+|-----------|-------------|---------|
+| `project_name` | Unique project identifier | Any alphanumeric string |
+| `description` | Project description | Any text |
+| `pbf_file` | Source data file | File in `pbf/` directory |
+| `render_mode` | Rendering scope | `full` or `bbox` |
+| `min_zoom` | Minimum zoom level | 0-18 (0 = world view) |
+| `max_zoom` | Maximum zoom level | 0-18 (18 = street level) |
+
+### Bounding Box Configuration
+
+For custom areas, use `bbox` mode:
 
 ```json
 {
-  "project_name": "nicosia",
-  "description": "Nicosia City Map Tiles",
-  "pbf_file": "cyprus-latest.osm.pbf",
+  "project_name": "london_center",
+  "description": "London City Center",
+  "pbf_file": "england-latest.osm.pbf",
   "render_mode": "bbox",
   "bbox": {
-    "min_lat": 35.1,
-    "max_lat": 35.2,
-    "min_lon": 33.3,
-    "max_lon": 33.4
+    "min_lat": 51.45,
+    "max_lat": 51.55,
+    "min_lon": -0.2,
+    "max_lon": 0.1
   },
   "min_zoom": 10,
   "max_zoom": 16
 }
 ```
 
-## 📝 Working with Templates
+**💡 Tip:** Use [bboxfinder.com](http://bboxfinder.com/) to find coordinates for your area.
 
-GeoPipe includes a template generation system to help create configuration files for different regions.
+---
 
-### Using generate_templates.bat
+## 📖 Usage Guide
 
-The `config/generate_templates.bat` script (Windows) or `src/generate_templates.py` (all platforms) helps create configuration templates:
+### Interactive CLI Features
 
-```bash
-# Windows
-cd config
-generate_templates.bat
+The application provides real-time feedback during operation:
 
-# Linux/macOS
-python src/generate_templates.py
+- **Progress Indicators:** Shows completion percentage and ETA
+- **Memory Monitoring:** Displays resource usage
+- **Error Handling:** Clear error messages with solutions
+- **Log Output:** Detailed logging for troubleshooting
+
+### CLI Commands During Operation
+
+| Key Combination | Action |
+|-----------------|--------|
+| `Ctrl+C` | Gracefully stop current operation |
+| `Enter` | Continue after pause |
+| `q` | Quick exit (during non-critical operations) |
+
+### Understanding Output
+
+```
+🗺️  Generating tiles for project: cyprus
+📊 Zoom levels: 8-14 (7 levels)
+📍 Area: Full dataset
+💾 Estimated tiles: 12,845
+⏱️  Estimated time: 25 minutes
+
+Processing zoom level 8... ████████████████████ 100% (256/256)
+Processing zoom level 9... ████████████████████ 100% (1024/1024)
+...
 ```
 
-This tool will:
-1. Scan the `pbf/` directory for available `.osm.pbf` files
-2. Generate template configuration files for each PBF file
-3. Allow you to customize zoom levels and rendering mode
-4. Save the templates to the `config/` directory
+### Generated Output
 
-### Customizing Templates
-
-You can edit the generated templates manually to:
-- Adjust bounding box coordinates
-- Change zoom levels
-- Modify project descriptions
-- Set specific rendering parameters
-
-The template system follows the JSON schema defined in `config/config_schema.json`.
-
-## 🗺️ Tile Generation Process
-
-### How Tiles Are Generated
-
-When you start a project, GeoPipe:
-
-1. **Loads Configuration**: Reads the project settings from the JSON file
-2. **Prepares Database**: Checks if the PBF data is already imported into PostgreSQL
-   - If not, imports the data using Imposm3 (this happens only once per PBF file)
-3. **Calculates Tile Grid**: Determines which tiles need to be generated based on zoom levels
-4. **Renders Tiles**: For each tile coordinate (z/x/y):
-   - Sends a request to the rendering engine
-   - Mapnik processes the request using data from PostgreSQL
-   - Generates a 256x256 pixel PNG image
-   - Saves the image to the appropriate directory
-5. **Monitors Progress**: Shows real-time progress and statistics
-
-### Output Structure
-
-Generated tiles are stored in the `tiles/` directory with the following structure:
+Tiles are organized in standard XYZ format:
 
 ```
 tiles/
-└── {project_name}/
-    └── {zoom_level}/
-        └── {x_coordinate}/
-            └── {y_coordinate}.png
+└── cyprus/
+    ├── 8/
+    │   ├── 156/
+    │   │   ├── 98.png
+    │   │   └── 99.png
+    │   └── 157/
+    │       └── 98.png
+    └── 9/
+        └── ...
 ```
 
-Example: `tiles/cyprus/11/1423/982.png`
+---
 
-### Performance Considerations
+## 📝 Templates
 
-- **Memory Usage**: Higher zoom levels require more memory
-- **Disk Space**: A single country can generate gigabytes of tiles
-- **Processing Time**: Varies based on area size and zoom levels
-  - Small country at zoom 0-12: ~30 minutes
-  - Large country at zoom 0-14: Several hours
+### Using Template Generator
 
-## 🔍 Troubleshooting
+GeoPipe includes a template generator to quickly create configurations:
 
-### Common Issues
+**Windows:**
+```cmd
+cd config
+generate_templates.bat
+```
 
-- **Docker Services Not Starting**: 
-  ```bash
-  # Check Docker status
-  docker info
-  
-  # Restart Docker
-  # Windows: Restart Docker Desktop
-  # Linux: sudo systemctl restart docker
-  ```
+**Linux/macOS:**
+```bash
+python src/generate_templates.py
+```
 
-- **Database Import Errors**:
-  ```bash
-  # Check container logs
-  docker-compose logs osm_postgres
-  docker-compose logs osm_tools
-  ```
+### Template Features
 
-- **Tile Generation Failures**:
-  ```bash
-  # Check application logs
-  # Windows
-  type osm_pipeline.log
-  
-  # Linux/macOS
-  cat osm_pipeline.log
-  ```
+The template generator will:
+
+1. **Scan for PBF files** in the `pbf/` directory
+2. **Generate configurations** for each found file
+3. **Set reasonable defaults** for zoom levels and rendering
+4. **Validate configurations** against the schema
+
+### Customizing Templates
+
+Edit generated templates to:
+- Add bounding box constraints
+- Adjust zoom level ranges  
+- Change project descriptions
+- Set specific rendering parameters
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues and Solutions
+
+#### 🐳 Docker Issues
+
+**Problem:** Docker services won't start
+```bash
+# Check Docker status
+docker info
+
+# Restart Docker services  
+docker-compose down
+docker-compose up -d
+
+# Check logs
+docker-compose logs
+```
+
+**Problem:** Port conflicts (5432, 8081 already in use)
+```bash
+# Windows - Find process using port
+netstat -ano | findstr :5432
+
+# Linux/macOS - Find process using port  
+lsof -i :5432
+
+# Stop conflicting process or change port in docker-compose.yml
+```
+
+#### 🗄️ Database Issues
+
+**Problem:** Database import fails
+```bash
+# Check database logs
+docker-compose logs osm_postgres
+
+# Reset database
+docker-compose down -v
+docker-compose up -d
+```
+
+#### 🗺️ Tile Generation Issues
+
+**Problem:** Empty or incorrect tiles
+- Verify PBF file is not corrupted
+- Check bounding box coordinates
+- Ensure zoom levels are appropriate for area size
+
+**Problem:** Out of memory errors
+- Reduce zoom level range
+- Use smaller bounding box
+- Increase Docker memory allocation
 
 ### Emergency Reset
 
-If you encounter persistent issues, you can reset the entire system:
+If you encounter persistent issues:
 
-- **Windows**:
-  ```bash
-  emergency_reset.bat
-  ```
+**Windows:**
+```cmd
+emergency_reset.bat
+```
 
-- **Linux/macOS**:
-  ```bash
-  bash emergency_reset.sh
-  ```
+**Linux/macOS:**  
+```bash
+bash emergency_reset.sh
+```
 
-This will:
-1. Stop all containers
-2. Remove Docker volumes
-3. Clear the tile cache
-4. Restart the services
+This will completely reset the system and clear all data.
 
-For more detailed troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+### Getting Help
+
+- Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed solutions
+- Review logs in `osm_pipeline.log`
+- Check Docker container logs: `docker-compose logs`
+
+---
 
 ## 📁 Directory Structure
 
 ```
 GeoPipe/
-├── config/                  # Project configuration files
-│   ├── config_schema.json   # JSON schema for validation
-│   ├── cyprus.json          # Example configuration
-│   ├── Kosova.json          # Example configuration
-│   └── generate_templates.bat # Template generation script
-├── pbf/                     # OpenStreetMap PBF data files
-│   ├── cyprus-latest.osm.pbf # Example PBF file
-│   └── kosovo-latest.osm.pbf # Example PBF file
-├── src/                     # Source code
-│   ├── config/              # Configuration management modules
-│   ├── core/                # Core processing modules
-│   ├── ui/                  # User interface modules
-│   └── utils/               # Utility functions
-├── tiles/                   # Generated tile output
-├── docker-compose.yml       # Docker service definitions
-├── emergency_reset.bat      # Windows reset script
-├── emergency_reset.sh       # Linux/macOS reset script
-├── nginx.conf               # Nginx configuration
-├── osm_pipeline.bat         # Windows launcher
-├── osm_pipeline.py          # Main application
-└── requirements.txt         # Python dependencies
+├── 📁 config/                    # Project configurations
+│   ├── 📄 config_schema.json     # Configuration validation schema
+│   ├── 📄 cyprus.json            # Example: Cyprus configuration
+│   ├── 📄 Kosova.json            # Example: Kosovo configuration
+│   └── 🔧 generate_templates.bat # Template generator (Windows)
+│
+├── 📁 pbf/                       # OpenStreetMap data files
+│   ├── 🗺️ cyprus-latest.osm.pbf   # Example: Cyprus map data
+│   └── 🗺️ kosovo-latest.osm.pbf   # Example: Kosovo map data
+│
+├── 📁 src/                       # Source code
+│   ├── 📁 config/                # Configuration management
+│   ├── 📁 core/                  # Core processing engine
+│   ├── 📁 ui/                    # User interface
+│   └── 📁 utils/                 # Utility functions
+│
+├── 📁 tiles/                     # Generated tile output
+│   └── 📁 {project_name}/        # Tiles organized by project
+│       └── 📁 {z}/{x}/{y}.png    # Standard XYZ tile structure
+│
+├── 🐳 docker-compose.yml         # Docker service definitions
+├── 🔧 nginx.conf                 # Web server configuration  
+├── 🚀 osm_pipeline.py            # Main application (Linux/macOS)
+├── 🚀 osm_pipeline.bat           # Main application (Windows)
+├── 📋 requirements.txt           # Python dependencies
+├── 🆘 emergency_reset.bat        # Reset script (Windows)
+└── 🆘 emergency_reset.sh         # Reset script (Linux/macOS)
 ```
 
-## 🚀 Advanced Usage
+---
+
+## 🚀 Advanced Features
+
+### Performance Optimization
+
+#### System Requirements
+
+| Component | Minimum | Recommended |
+|-----------|---------|-------------|
+| **RAM** | 4GB | 8GB+ |
+| **CPU** | 2 cores | 4+ cores |
+| **Storage** | 10GB free | SSD with 50GB+ |
+| **Docker Memory** | 2GB | 4GB+ |
+
+#### Resource Allocation
+
+Edit `docker-compose.yml` for better performance:
+
+```yaml
+services:
+  osm_postgres:
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+```
 
 ### Custom Styling
 
-GeoPipe uses the standard OSM Carto style by default. Advanced users can modify the styling by:
+Advanced users can modify the map appearance:
 
-1. Accessing the `osm_tools` container:
+1. **Access the rendering container:**
    ```bash
    docker exec -it osm_tools bash
    ```
 
-2. Editing the Mapnik style file:
+2. **Edit style configuration:**
    ```bash
    nano /home/renderer/src/openstreetmap-carto/style.xml
    ```
 
-3. Restarting the rendering service:
+3. **Restart rendering service:**
    ```bash
    supervisorctl restart renderd
    ```
 
-### Performance Tuning
+### Batch Processing
 
-For better performance on powerful systems:
+For multiple projects, create a batch script:
 
-1. Edit `docker-compose.yml` to allocate more resources:
-   ```yaml
-   services:
-     osm_postgres:
-       deploy:
-         resources:
-           limits:
-             memory: 4G
-   ```
+```bash
+#!/bin/bash
+for config in config/*.json; do
+    echo "Processing $config"
+    python osm_pipeline.py --config "$config" --batch
+done
+```
 
-2. Optimize PostgreSQL settings in the container:
-   ```bash
-   docker exec -it osm_postgres bash
-   nano /var/lib/postgresql/data/postgresql.conf
-   # Increase shared_buffers, work_mem, etc.
-   ```
+---
 
-3. Restart services with new settings:
-   ```bash
-   docker-compose down
-   docker-compose up -d
-   ```
+## 📊 Performance Expectations
+
+### Tile Generation Speed
+
+| Area Size | Zoom Levels | Estimated Time | Tile Count |
+|-----------|-------------|----------------|------------|
+| Small city | 8-14 | 15-30 minutes | ~10,000 |
+| Large city | 8-16 | 1-3 hours | ~100,000 |
+| Small country | 8-14 | 2-6 hours | ~500,000 |
+| Large country | 8-16 | 8-24 hours | ~5,000,000 |
+
+### Storage Requirements
+
+| Zoom Level | Tiles per Level | Storage per Level |
+|------------|-----------------|-------------------|
+| 8 | ~1,000 | ~5MB |
+| 10 | ~16,000 | ~80MB |
+| 12 | ~250,000 | ~1.2GB |
+| 14 | ~4,000,000 | ~20GB |
+| 16 | ~64,000,000 | ~320GB |
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgements
-
-- [OpenStreetMap](https://www.openstreetmap.org/) for providing the map data
-- [Geofabrik](https://download.geofabrik.de/) for providing PBF extracts
-- [Overv/openstreetmap-tile-server](https://github.com/Overv/openstreetmap-tile-server) for the Docker image
-- All contributors to the OSM ecosystem
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-For technical details about the system architecture and implementation, see [PROJECT_DOCUMENTATION.md](PROJECT_DOCUMENTATION.md).
+## 🙏 Acknowledgements
+
+- **[OpenStreetMap](https://www.openstreetmap.org/)** - Community-driven map data
+- **[Geofabrik](https://download.geofabrik.de/)** - PBF data extracts
+- **[Overv/openstreetmap-tile-server](https://github.com/Overv/openstreetmap-tile-server)** - Docker tile server
+- **OSM Community** - Contributors worldwide
+
+---
+
+## 📚 Additional Resources
+
+- **[Technical Documentation](PROJECT_DOCUMENTATION.md)** - Detailed system architecture
+- **[Troubleshooting Guide](TROUBLESHOOTING.md)** - Comprehensive problem solving
+- **[OpenStreetMap Wiki](https://wiki.openstreetmap.org/)** - OSM documentation
+- **[Tile Server Guide](https://switch2osm.org/)** - Additional tile server resources
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the OpenStreetMap community**
+
+[⭐ Star this project](https://github.com/osmansahan/GeoPipe) | [🐛 Report Issues](https://github.com/osmansahan/GeoPipe/issues) | [🤝 Contribute](https://github.com/osmansahan/GeoPipe/pulls)
+
+</div>
