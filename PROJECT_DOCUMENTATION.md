@@ -2,7 +2,7 @@
 
 ## 1. System Overview
 
-The OSM Tile Generator Professional Edition v3.0 is an enterprise-grade, containerized system designed for the automated generation of map tiles from OpenStreetMap data sources in Protocolbuffer Binary Format (`.osm.pbf`). The system implements a modular architecture with comprehensive project management capabilities through an interactive Command Line Interface (CLI) and produces cartographically accurate map tiles utilizing the industry-standard `osm-carto` styling specification. The entire platform is containerized using Docker technology to ensure consistent deployment across heterogeneous computing environments and eliminate dependency-related deployment issues.
+The OSM Tile Generator is an enterprise-grade, containerized system designed for the automated generation of map tiles from OpenStreetMap data sources in Protocolbuffer Binary Format (`.osm.pbf`). The system implements a modular architecture with comprehensive project management capabilities through an interactive Command Line Interface (CLI) and produces cartographically accurate map tiles utilizing the industry-standard `osm-carto` styling specification. The entire platform is containerized using Docker technology to ensure consistent deployment across heterogeneous computing environments and eliminate dependency-related deployment issues.
 
 ### Core System Features:
 
@@ -230,3 +230,4 @@ This section provides detailed technical specifications for the fundamental tech
 
 -   **Technology Overview**: Advanced spatial database extension for PostgreSQL, providing comprehensive support for geographic objects (points, lines, polygons) and spatial query operations (e.g., "retrieve all restaurants within 500 meters of specified coordinates").
 -   **System Integration**: Functions as the **primary data warehouse** for the entire system. PostGIS stores all OSM datasets imported by Imposm3 with full geospatial indexing and query optimization. Mapnik retrieves rendering data through direct PostGIS spatial SQL queries such as "SELECT all transportation features within the current bounding box" enabling efficient geographic data filtering and retrieval for tile generation operations.
+
