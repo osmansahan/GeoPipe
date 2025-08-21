@@ -38,15 +38,14 @@ Execute the following commands to obtain the project source code:
 
 2.  **Repository Cloning**:
     ```bash
-    git clone [REPOSITORY_URL]
-    cd geo
-    ```
-    Replace `[REPOSITORY_URL]` with the actual repository location provided by your system administrator.
+git clone https://github.com/osmansahan/GeoPipe.git
+cd GeoPipe
+```
 
 3.  **Directory Verification**:
     Confirm the presence of the following essential directories and files:
     ```
-    geo/
+    GeoPipe/
     ├── pbf/                    # OSM data storage
     ├── config/                 # Project configurations
     ├── tiles/                  # Generated tile output
