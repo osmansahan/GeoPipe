@@ -49,11 +49,19 @@ export PYTHONIOENCODING=utf-8
 #### Problem: Containers not starting
 **Solution:**
 ```bash
-# Restart containers
+# Linux/macOS - Restart containers
 docker-compose down
 docker-compose up -d
 
-# Check logs
+# Windows PowerShell - Restart containers
+docker-compose down
+docker-compose up -d
+
+# Linux/macOS - Check logs
+docker-compose logs osm_tools
+docker-compose logs osm_postgres
+
+# Windows PowerShell - Check logs
 docker-compose logs osm_tools
 docker-compose logs osm_postgres
 ```
@@ -61,11 +69,21 @@ docker-compose logs osm_postgres
 #### Problem: "Port already in use" error
 **Solution:**
 ```bash
-# Check used ports
+# Windows - Check used ports
 netstat -ano | findstr :5432
 netstat -ano | findstr :8081
 
-# Stop conflicting service or change port in docker-compose.yml
+# Linux/macOS - Check used ports
+lsof -i :5432
+lsof -i :8081
+
+# Windows - Stop process by PID (replace PID with actual process ID)
+taskkill /PID PID /F
+
+# Linux/macOS - Stop process by PID (replace PID with actual process ID)
+kill -9 PID
+
+# Alternative: Change port in docker-compose.yml
 ```
 
 ### 4. Tile Generation Issues
@@ -87,18 +105,26 @@ netstat -ano | findstr :8081
 #### Problem: PBF file not found
 **Solution:**
 ```bash
-# Check that the PBF file is in the correct location
+# Linux/macOS - Check that the PBF file is in the correct location
 ls -la pbf/
-# Check file permissions
+# Linux/macOS - Check file permissions
 chmod 644 pbf/*.pbf
+
+# Windows - Check that the PBF file is in the correct location
+dir pbf\
+# Windows - Check file permissions
+icacls "pbf\*.pbf" /grant Everyone:R
 ```
 
 #### Problem: No write permission to Tiles folder
 **Solution:**
 ```bash
-# Fix directory permissions
+# Linux/macOS - Fix directory permissions
 chmod 755 tiles/
 sudo chown -R $USER:$USER tiles/
+
+# Windows - Fix directory permissions
+icacls "tiles" /grant Everyone:F
 ```
 
 ## 🚀 Performance Optimization
@@ -125,14 +151,19 @@ services:
 
 ### Check logs for debugging:
 ```bash
-# Application log
+# Linux/macOS - Application log
 tail -f osm_pipeline.log
 
-# Docker container logs
+# Windows - Application log
+Get-Content -Path osm_pipeline.log -Wait
+# or
+type osm_pipeline.log
+
+# Linux/macOS/Windows - Docker container logs
 docker-compose logs -f osm_tools
 docker-compose logs -f osm_postgres
 
-# System resource usage
+# Linux/macOS/Windows - System resource usage
 docker stats
 ```
 
@@ -152,19 +183,15 @@ docker-compose up -d
 
 ### Clearing cache:
 ```bash
-# Clean Docker cache
+# Linux/macOS/Windows - Clean Docker cache
 docker system prune -a -f
 
-# Clean tile cache
+# Linux/macOS - Clean tile cache
 rm -rf tiles/*
+
+# Windows - Clean tile cache
+rd /s /q tiles
+mkdir tiles
+# or
+del /q /s tiles\*
 ```
-
-## 📞 Technical Support
-
-If the problem persists:
-1. Check the `osm_pipeline.log` file
-2. Save the output of `docker-compose logs`
-3. Note your system information (OS, Docker version, RAM)
-4. Specify the PBF file and configuration you are using
-
-Share this information with the technical support team.

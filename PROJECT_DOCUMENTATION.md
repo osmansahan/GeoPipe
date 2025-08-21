@@ -108,36 +108,36 @@ The system supports two distinct operational pathways for project configuration:
 
 Both workflows conclude with the system possessing a complete configuration object containing all parameters necessary for tile generation execution.
 
-### Aşama 3: Veri Hazırlığı (Tek Seferlik Görev)
+### Phase 3: Data Preparation (One-Time Task)
 
-Bu aşama, Docker'ın arka planda yaptığı en önemli işlerden biridir ve genellikle bir `.pbf` dosyası için sadece **ilk kez** çalıştırılır.
+This phase is one of the most important operations performed by Docker in the background and is typically executed only **once** for a `.pbf` file.
 
-1.  **Veritabanı Kontrolü**: `osm-tools` container'ı, `postgres` container'ındaki PostGIS veritabanının, kullanılacak `.pbf` dosyası için daha önce doldurulup doldurulmadığını kontrol eder.
-2.  **Veri Aktarımı (`Imposm3`)**: Eğer veritabanı boşsa, `osm-tools` içindeki `Imposm3` aracı otomatik olarak tetiklenir. `Imposm3`, `.pbf` dosyasını baştan sona okur, içindeki yolları, binaları, nehirleri, sınırları ve diğer coğrafi elementleri analiz eder ve bunları PostGIS veritabanındaki özel tablolara aktarır. Bu işlem, verinin harita üzerinde çizilmeye hazır hale gelmesini sağlar ve `.pbf` dosyasının boyutuna bağlı olarak uzun sürebilir.
-3.  **Hazırlık Tamamlandı**: Veri aktarımı bittiğinde veya veritabanı zaten doluysa, sistem artık harita çizimi için hazırdır.
+1.  **Database Verification**: The `osm-tools` container checks whether the PostGIS database in the `postgres` container has been previously populated for the `.pbf` file to be used.
+2.  **Data Transfer (`Imposm3`)**: If the database is empty, the `Imposm3` tool within `osm-tools` is automatically triggered. `Imposm3` reads the `.pbf` file from start to finish, analyzes the roads, buildings, rivers, boundaries, and other geographic elements within it, and transfers them to specialized tables in the PostGIS database. This process prepares the data for map rendering and may take a long time depending on the size of the `.pbf` file.
+3.  **Preparation Complete**: Once the data transfer is complete or if the database is already populated, the system is ready for map rendering.
 
-### Aşama 4: Çekirdek Üretim Mantığı - Dinamik Betik Oluşturma
+### Phase 4: Core Production Logic - Dynamic Script Generation
 
-Bu, projenin en zekice tasarlanmış kısmıdır. `osm_pipeline.py` betiği, harita çizimini doğrudan yapmaz. Bunun yerine, bu işi yapacak olan **geçici ve projeye özel bir Python betiği oluşturur**.
+This is the most cleverly designed part of the project. The `osm_pipeline.py` script does not directly render maps. Instead, it **creates a temporary and project-specific Python script** that will perform this task.
 
--   **`src/core/tile_generator.py`**: Bu modül, o anki proje yapılandırmasını (`config.json` içeriğini) alır.
--   Bu yapılandırmaya göre, tile'ları tek tek indirecek olan bir Python kodu metni (string) oluşturur. Bu metin, içinde `for` döngüleri, `curl` komutları ve ilerleme takibi için `print` ifadeleri barındıran tam bir Python programıdır.
--   **Neden bu yaklaşım?** Çünkü bu sayede ana Python uygulamasının `Mapnik` veya `PostGIS` gibi karmaşık kütüphanelere bağımlılığı olmaz. Tüm ağır iş, bu kütüphanelerin zaten kurulu olduğu `osm-tools` container'ına delege edilir.
+-   **`src/core/tile_generator.py`**: This module takes the current project configuration (contents of `config.json`).
+-   Based on this configuration, it generates a Python code text (string) that will download tiles one by one. This text is a complete Python program containing `for` loops, `curl` commands, and `print` statements for progress tracking.
+-   **Why this approach?** Because this way, the main Python application does not depend on complex libraries like `Mapnik` or `PostGIS`. All the heavy lifting is delegated to the `osm-tools` container where these libraries are already installed.
 
-### Aşama 5: Tile Üretim Döngüsü (Docker İçinde)
+### Phase 5: Tile Production Cycle (Inside Docker)
 
-1.  **Betiği Çalıştırma (`docker exec`)**: `TileGenerator`, az önce oluşturduğu Python betiğini `docker exec osm_tools python3 -c "..."` komutuyla `osm-tools` container'ının **içinde** çalıştırır.
-2.  **Döngünün Başlaması**: Container içinde çalışan bu geçici betik, proje yapılandırmasına göre gerekli olan tüm tile koordinatlarını (Z, X, Y) hesaplar ve bir döngü başlatır.
-3.  **HTTP İsteği (`curl`)**: Döngünün her adımında, sıradaki tile için `curl http://localhost/tile/{z}/{x}/{y}.png` gibi bir HTTP isteği yapar. Bu istek, Docker'ın iç ağı üzerinden, aynı container'da çalışan `Renderd` servisine gönderilir.
-4.  **Harita Çizimi (`Renderd` & `Mapnik`)**: `Renderd`, bu isteği alır ve bir harita çizim görevi olarak `Mapnik`'e verir. `Mapnik`, `PostGIS` veritabanına bağlanır, istenen koordinatlara düşen coğrafi verileri çeker, bunları `osm-carto` stiliyle birleştirerek 256x256 piksellik bir PNG resmi oluşturur.
-5.  **Dosyayı Kaydetme**: Oluşturulan PNG resmi, HTTP yanıtı olarak `curl` komutuna geri döner. `curl`, bu resmi `/data/tiles/{proje-ismi}/{z}/{x}/{y}.png` yoluna kaydeder.
-6.  **Anında Senkronizasyon**: `docker-compose.yml` dosyasındaki `volumes` tanımı sayesinde (`./tiles:/data/tiles`), container içindeki bu yola kaydedilen her dosya, anında ana makinenizdeki `tiles/` klasöründe belirir.
-7.  Döngü, tüm tile'lar üretilene kadar devam eder.
+1.  **Running the Script (`docker exec`)**: `TileGenerator` runs the Python script it just created **inside** the `osm-tools` container using the command `docker exec osm_tools python3 -c "..."`.
+2.  **Starting the Loop**: This temporary script running inside the container calculates all the tile coordinates (Z, X, Y) required according to the project configuration and starts a loop.
+3.  **HTTP Request (`curl`)**: At each step of the loop, it makes an HTTP request like `curl http://localhost/tile/{z}/{x}/{y}.png` for the next tile. This request is sent to the `Renderd` service running in the same container via Docker's internal network.
+4.  **Map Rendering (`Renderd` & `Mapnik`)**: `Renderd` receives this request and passes it to `Mapnik` as a map rendering task. `Mapnik` connects to the `PostGIS` database, retrieves the geographic data for the requested coordinates, combines them with the `osm-carto` style to create a 256x256 pixel PNG image.
+5.  **Saving the File**: The generated PNG image is returned to the `curl` command as an HTTP response. `curl` saves this image to the path `/data/tiles/{project-name}/{z}/{x}/{y}.png`.
+6.  **Instant Synchronization**: Thanks to the `volumes` definition in the `docker-compose.yml` file (`./tiles:/data/tiles`), every file saved to this path inside the container instantly appears in the `tiles/` folder on your host machine.
+7.  The loop continues until all tiles are produced.
 
-### Aşama 6: İzleme ve Tamamlama
+### Phase 6: Monitoring and Completion
 
--   Ana `osm_pipeline.py` betiği, `docker exec` komutunun çıktısını (`stdout`) gerçek zamanlı olarak dinler. Container içinde çalışan betiğin bastığı her ilerleme mesajı, anında kullanıcının terminalinde gösterilir.
--   Döngü tamamlandığında, container içindeki betik sona erer. `osm_pipeline.py`, sürecin bittiğini anlar, son bir doğrulama yaparak eksik tile olup olmadığını kontrol eder ve kullanıcıya işlemin başarıyla tamamlandığını bildirir.
+-   The main `osm_pipeline.py` script listens to the output (`stdout`) of the `docker exec` command in real-time. Every progress message printed by the script running inside the container is immediately displayed in the user's terminal.
+-   When the loop completes, the script inside the container ends. `osm_pipeline.py` recognizes that the process has finished, performs a final validation to check for any missing tiles, and notifies the user that the operation has been successfully completed.
 
 ---
 
