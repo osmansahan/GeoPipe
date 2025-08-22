@@ -100,19 +100,19 @@ class DockerManager:
         print("="*60)
         
         for image in required_images:
-            print(f"\n📦 Checking {image}...")
+            print(f"\nChecking {image}...")
             
             if self._is_image_available(image):
-                print(f"✅ {image} already available")
+                print(f"OK: {image} already available")
                 continue
             
-            print(f"⬇️  Downloading {image}...")
+            print(f"Downloading {image}...")
             if not self._pull_image_with_progress(image):
-                print(f"❌ Failed to download {image}!")
+                print(f"ERROR: Failed to download {image}!")
                 return False
-            print(f"✅ {image} downloaded successfully")
+            print(f"OK: {image} downloaded successfully")
         
-        print(f"\n✅ All Docker images ready!")
+        print(f"\nOK: All Docker images ready!")
         return True
     
     def _is_image_available(self, image: str) -> bool:
@@ -146,21 +146,21 @@ class DockerManager:
                     if output and ('Downloading' in output or 'Extracting' in output):
                         # Show simplified progress
                         if 'Downloading' in output:
-                            print("   📥 Downloading...", end='\r')
+                            print("   Downloading...", end='\r')
                         elif 'Extracting' in output:
-                            print("   📤 Extracting... ", end='\r')
+                            print("   Extracting... ", end='\r')
                 
                 if process.returncode == 0:
-                    print("   ✅ Completed!         ")
+                    print("   OK: Completed!         ")
                     return True
                 else:
-                    print(f"   ❌ Error (code: {process.returncode})")
+                    print(f"   ERROR (code: {process.returncode})")
                     
             except Exception as e:
-                print(f"   ❌ Error: {e}")
+                print(f"   ERROR: {e}")
             
             if attempt < self.max_retries - 1:
-                print(f"   ⏳ Waiting {self.retry_delay} seconds...")
+                print(f"   Waiting {self.retry_delay} seconds...")
                 time.sleep(self.retry_delay)
         
         return False
@@ -191,17 +191,17 @@ class DockerManager:
                 if result.returncode == 0:
                     # Wait for services to be ready
                     if self._wait_for_services_ready():
-                        print("✅ All services started successfully!")
+                        print("OK: All services started successfully!")
                         return True
                     else:
-                        print("⚠️  Services started but not ready")
+                        print("WARNING: Services started but not ready")
                 else:
-                    print(f"❌ Docker Compose error: {result.stderr}")
+                    print(f"ERROR: Docker Compose error: {result.stderr}")
                     
             except subprocess.TimeoutExpired:
                 print("⏰ Timeout - services took too long")
             except Exception as e:
-                print(f"❌ Unexpected error: {e}")
+                print(f"ERROR: Unexpected error: {e}")
             
             if attempt < self.max_retries - 1:
                 print(f"⏳ Waiting {self.retry_delay} seconds...")
@@ -255,22 +255,22 @@ class DockerManager:
             print(".", end="", flush=True)
             time.sleep(2)
         
-        print("\n⚠️  Some services may not be fully ready")
+        print("\nWARNING: Some services may not be fully ready")
         return False
     
     def verify_pbf_import_ready(self, pbf_file: Path) -> bool:
         """Verify that PBF import infrastructure is ready"""
-        print(f"\n📋 Checking PBF import readiness: {pbf_file.name}")
+        print(f"\nChecking PBF import readiness: {pbf_file.name}")
         
         # Check if file exists and readable
         if not pbf_file.exists():
-            print(f"❌ PBF file not found: {pbf_file}")
+            print(f"ERROR: PBF file not found: {pbf_file}")
             return False
         
         # Check file size and warn if very large
         file_size = pbf_file.stat().st_size / (1024**3)  # GB
         if file_size > 5:
-            print(f"⚠️  Large PBF file ({file_size:.1f}GB) - import may take a long time")
+            print(f"WARNING: Large PBF file ({file_size:.1f}GB) - import may take a long time")
             response = input("Continue? (y/N): ").strip().lower()
             if response not in ['y', 'yes']:
                 return False
@@ -282,26 +282,26 @@ class DockerManager:
                 capture_output=True, text=True, timeout=10
             )
             if result.returncode != 0:
-                print("❌ Cannot access PostgreSQL database")
+                print("ERROR: Cannot access PostgreSQL database")
                 return False
         except subprocess.TimeoutExpired:
-            print("❌ PostgreSQL connection timeout")
+            print("ERROR: PostgreSQL connection timeout")
             return False
         
-        # Check if imposm3 is available
+        # Check if osm2pgsql is available
         try:
             result = subprocess.run(
-                ['docker', 'exec', 'osm_tools', 'which', 'imposm'],
+                ['docker', 'exec', 'osm_tools', 'which', 'osm2pgsql'],
                 capture_output=True, timeout=10
             )
             if result.returncode != 0:
-                print("❌ Imposm3 not found")
+                print("ERROR: osm2pgsql not found")
                 return False
         except subprocess.TimeoutExpired:
-            print("❌ Imposm3 check timeout")
+            print("ERROR: osm2pgsql check timeout")
             return False
         
-        print("✅ PBF import infrastructure ready")
+        print("OK: PBF import infrastructure ready")
         return True
     
     def get_service_status(self) -> Dict[str, str]:
@@ -325,7 +325,7 @@ class DockerManager:
     
     def emergency_cleanup(self) -> bool:
         """Emergency cleanup in case of stuck services"""
-        print("\n🆘 EMERGENCY CLEANUP")
+        print("\nEMERGENCY CLEANUP")
         print("="*40)
         
         try:
@@ -339,8 +339,8 @@ class DockerManager:
             # Clean up networks
             subprocess.run(['docker', 'network', 'prune', '-f'], timeout=30)
             
-            print("✅ Emergency cleanup completed")
+            print("OK: Emergency cleanup completed")
             return True
         except:
-            print("❌ Emergency cleanup failed")
+            print("ERROR: Emergency cleanup failed")
             return False

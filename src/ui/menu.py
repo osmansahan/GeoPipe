@@ -303,42 +303,42 @@ class MenuSystem:
     def _start_generation(self, config: Dict):
         """Start tile generation with bulletproof Docker handling"""
         self.print_header()
-        print("🚀 STARTING TILE GENERATION WITH TRACKING")
+        print("STARTING TILE GENERATION WITH TRACKING")
         print("=" * 60)
         
         # 1. Comprehensive system check
-        print("1️⃣ Checking system requirements...")
+        print("[1] Checking system requirements...")
         requirements_ok, issues = self.docker_manager.check_system_requirements()
         if not requirements_ok:
-            print("\n❌ System requirements not met:")
+            print("\nERROR: System requirements not met:")
             for issue in issues:
-                print(f"   • {issue}")
+                print(f"   - {issue}")
             print("\nPlease resolve the issues and try again.")
             input("\nPress Enter to continue...")
             return
-        print("✅ System requirements OK")
+        print("OK: System requirements met")
         
         # 2. Check PBF file
-        print(f"\n2️⃣ Checking PBF file...")
+        print(f"\n[2] Checking PBF file...")
         pbf_path = self.root_dir / config['pbf_path'].lstrip('/')
         if not pbf_path.exists():
-            print(f"❌ PBF file not found: {pbf_path}")
+            print(f"ERROR: PBF file not found: {pbf_path}")
             input("\nPress Enter to continue...")
             return
-        print(f"✅ PBF file exists: {pbf_path.name}")
+        print(f"OK: PBF file exists: {pbf_path.name}")
         
         # 3. Ensure Docker images are available
-        print(f"\n3️⃣ Checking Docker images...")
+        print(f"\n[3] Checking Docker images...")
         if not self.docker_manager.ensure_images_available():
-            print("❌ Docker images could not be prepared!")
+            print("ERROR: Docker images could not be prepared!")
             print("Check your internet connection and try again.")
             input("\nPress Enter to continue...")
             return
         
         # 4. Start Docker services robustly
-        print(f"\n4️⃣ Starting Docker services...")
+        print(f"\n[4] Starting Docker services...")
         if not self.docker_manager.start_services_robust():
-            print("❌ Docker services could not be started!")
+            print("ERROR: Docker services could not be started!")
             print("Do you want to perform an emergency cleanup?")
             response = input("(y/N): ").strip().lower()
             if response in ['y', 'yes']:
@@ -347,26 +347,26 @@ class MenuSystem:
             return
         
         # 5. Verify PBF import readiness
-        print(f"\n5️⃣ Checking PBF import readiness...")
+        print(f"\n[5] Checking PBF import readiness...")
         if not self.docker_manager.verify_pbf_import_ready(pbf_path):
-            print("❌ PBF import infrastructure is not ready!")
+            print("ERROR: PBF import infrastructure is not ready!")
             input("\nPress Enter to continue...")
             return
         
         # 6. Start generation
-        print(f"\n6️⃣ Starting tile generation...")
+        print(f"\n[6] Starting tile generation...")
         print("=" * 60)
-        print("🎯 ALL CHECKS SUCCESSFUL - STARTING PRODUCTION")
+        print("SUCCESS: ALL CHECKS PASSED - STARTING PRODUCTION")
         print("=" * 60)
         
         success = self.tile_generator.generate_tiles(config)
         
         print("\n" + "=" * 60)
         if success:
-            print(f"🎉 SUCCESS! {config['name']} tile generation completed!")
-            print(f"📁 Files: in the tiles/{config['name']}/ directory")
+            print(f"SUCCESS! {config['name']} tile generation completed!")
+            print(f"Files saved in: tiles/{config['name']}/ directory")
         else:
-            print(f"❌ FAILED! {config['name']} tile generation could not be completed!")
+            print(f"FAILED! {config['name']} tile generation could not be completed!")
             print("Check log files: osm_pipeline.log")
         print("=" * 60)
         
