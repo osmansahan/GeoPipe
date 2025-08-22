@@ -63,7 +63,7 @@ graph TD
 2.  **Docker Service Infrastructure (`docker-compose.yml`)**:
     -   **`osm_postgres`**: PostgreSQL database instance with PostGIS spatial extension, providing geospatial data storage and query capabilities for OSM datasets (geometries, topology, attributes)
     -   **`osm_tools`**: Core processing container utilizing `overv/openstreetmap-tile-server` image, encompassing:
-        -   `imposm3`: High-performance OSM data import utility for `.pbf` to PostgreSQL/PostGIS data transformation
+        -   `osm2pgsql`: Standard OSM data import utility for `.pbf` to PostgreSQL/PostGIS data transformation
         -   `renderd`: Mapnik-based tile rendering daemon with request queue management and caching infrastructure
         -   `mod_tile`: Apache HTTP module providing RESTful tile service interface and request routing to `renderd`
     -   **`osm_nginx`**: Nginx reverse proxy server for external tile service exposure and request proxying to internal services
@@ -113,7 +113,7 @@ Both workflows conclude with the system possessing a complete configuration obje
 This phase is one of the most important operations performed by Docker in the background and is typically executed only **once** for a `.pbf` file.
 
 1.  **Database Verification**: The `osm-tools` container checks whether the PostGIS database in the `postgres` container has been previously populated for the `.pbf` file to be used.
-2.  **Data Transfer (`Imposm3`)**: If the database is empty, the `Imposm3` tool within `osm-tools` is automatically triggered. `Imposm3` reads the `.pbf` file from start to finish, analyzes the roads, buildings, rivers, boundaries, and other geographic elements within it, and transfers them to specialized tables in the PostGIS database. This process prepares the data for map rendering and may take a long time depending on the size of the `.pbf` file.
+2.  **Data Transfer (`osm2pgsql`)**: If the database is empty, the `osm2pgsql` tool within `osm-tools` is automatically triggered. `osm2pgsql` reads the `.pbf` file from start to finish, analyzes the roads, buildings, rivers, boundaries, and other geographic elements within it, and transfers them to specialized tables in the PostGIS database. This process prepares the data for map rendering and may take a long time depending on the size of the `.pbf` file.
 3.  **Preparation Complete**: Once the data transfer is complete or if the database is already populated, the system is ready for map rendering.
 
 ### Phase 4: Core Production Logic - Dynamic Script Generation
@@ -175,7 +175,7 @@ This is the most cleverly designed part of the project. The `osm_pipeline.py` sc
     -   `volumes`:
         -   `./pbf:/data/pbf:ro`: Read-only mount of host PBF directory to container data path
         -   `./tiles:/data/tiles`: Bidirectional mount for tile output synchronization
-        -   `osm_data:/data/database/`: Persistent storage for imposm3 cache and renderd working data
+        -   `osm_data:/data/database/`: Persistent storage for osm2pgsql cache and renderd working data
     -   `command: run`: Initiates the renderd tile server daemon upon container startup
 -   **`osm_nginx`**: Nginx reverse proxy service for external tile service exposure
 
@@ -203,10 +203,10 @@ This section provides detailed technical specifications for the fundamental tech
     1.  **Reverse Proxy Implementation**: Intercepts incoming HTTP requests to `localhost:8081/tiles/...` and forwards them to the internal Docker network endpoint `http://osm_tools:80/tile/...`, providing service abstraction and single-point access control.
     2.  **Static Content Delivery (Future Enhancement)**: Configured for potential direct serving of generated PNG tiles from the `tiles/` directory, currently proxying all requests to the osm-tools container but easily reconfigurable for static file delivery.
 
-### Imposm3 (Integrated within `osm-tools` Container)
+### osm2pgsql (Integrated within `osm-tools` Container)
 
--   **Technology Overview**: High-performance OpenStreetMap data import utility specifically engineered for optimized `.pbf` to PostGIS database transformation workflows.
--   **System Integration**: Upon initial `osm-tools` container initialization, Imposm3 processes the `.osm.pbf` datasets from the `pbf/` directory. The utility performs comprehensive data analysis, extracting cartographically significant feature layers (transportation networks, building footprints, hydrographic features, administrative boundaries) and transforms them into PostGIS-compatible geospatial tables within the PostgreSQL database. This preprocessing stage is essential for subsequent Mapnik rendering operations.
+-   **Technology Overview**: Standard OpenStreetMap data import utility specifically engineered for optimized `.pbf` to PostGIS database transformation workflows.
+-   **System Integration**: Upon initial `osm-tools` container initialization, osm2pgsql processes the `.osm.pbf` datasets from the `pbf/` directory. The utility performs comprehensive data analysis, extracting cartographically significant feature layers (transportation networks, building footprints, hydrographic features, administrative boundaries) and transforms them into PostGIS-compatible geospatial tables within the PostgreSQL database. This preprocessing stage is essential for subsequent Mapnik rendering operations.
 
 ### Mapnik (Integrated within `osm-tools` Container)
 
@@ -229,5 +229,5 @@ This section provides detailed technical specifications for the fundamental tech
 ### PostGIS (PostgreSQL Extension within `osm_postgres` Service)
 
 -   **Technology Overview**: Advanced spatial database extension for PostgreSQL, providing comprehensive support for geographic objects (points, lines, polygons) and spatial query operations (e.g., "retrieve all restaurants within 500 meters of specified coordinates").
--   **System Integration**: Functions as the **primary data warehouse** for the entire system. PostGIS stores all OSM datasets imported by Imposm3 with full geospatial indexing and query optimization. Mapnik retrieves rendering data through direct PostGIS spatial SQL queries such as "SELECT all transportation features within the current bounding box" enabling efficient geographic data filtering and retrieval for tile generation operations.
+-   **System Integration**: Functions as the **primary data warehouse** for the entire system. PostGIS stores all OSM datasets imported by osm2pgsql with full geospatial indexing and query optimization. Mapnik retrieves rendering data through direct PostGIS spatial SQL queries such as "SELECT all transportation features within the current bounding box" enabling efficient geographic data filtering and retrieval for tile generation operations.
 
